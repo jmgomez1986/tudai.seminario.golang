@@ -30,6 +30,7 @@ func invokePint(p Printable) {
 func main() {
 	p := &person{name: "Juan"}
 	f := &figure{"Circulo"}
+	// Se pueden pasar los atributos por orden o con el nombre de atributo, se recomienda indicando el nombre
 
 	invokePint(p)
 	invokePint(f)
