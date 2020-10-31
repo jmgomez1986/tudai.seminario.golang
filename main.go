@@ -9,10 +9,14 @@ func invokeClose(c close) {
 }
 
 func main() {
-	f := func(s string) {
-		fmt.Println(s)
-	}
+	// f := func(s string) {
+	// 	fmt.Println(s)
+	// }
 
-	invokeClose(f)
+	// invokeClose(f)
+
+	invokeClose(func(s string) {
+		fmt.Println(s)
+	})
 
 }
