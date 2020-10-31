@@ -6,23 +6,32 @@ type person struct {
 	name string
 }
 
+type figure struct {
+	name string
+}
+
+// Printable ...
+type Printable interface {
+	print()
+}
+
 func (p *person) print() {
-	fmt.Println(p.name)
+	fmt.Println("[person]", p.name)
 }
 
-func (p *person) clean() {
-	p.name = ""
+func (f *figure) print() {
+	fmt.Println("[figure]", f.name)
 }
 
-// Poniendo el '*' usa un puntero a la misma ponsicion de memoria del que lo llamo, si no hace una copia
+func invokePint(p Printable) {
+	p.print()
+}
 
 func main() {
 	p := &person{name: "Juan"}
-	// Crea una instancia de la estructura 'Person',
-	//le agrega valor al atributo y obtiene el valor del puntero y lo guarda en 'p'
+	f := &figure{"Circulo"}
 
-	p.print()
-	p.clean()
-	p.print()
+	invokePint(p)
+	invokePint(f)
 
 }
