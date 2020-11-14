@@ -1,28 +1,70 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
+	"fmt"
+
+	"github.com/jmoiron/sqlx"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func main() {
-	r := gin.Default()
-	r.GET("/users/:name", getUserHandler)
-	r.POST("/users", addUserHandler)
-	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	var db *sqlx.DB
+
+	db, err := sqlx.Open("sqlite3", ":memory:")
+
+	err = db.Ping()
+
+	if err != nil {
+		panic(err.Error())
+	}
+
+	createSchema(db)
 }
 
-func getUserHandler(c *gin.Context) {
-	name := c.Param("name")
-	lastname := c.Query("lastname")
-	c.JSON(200, gin.H{
-		"status": "ok",
-		"name":   name + " " + lastname,
-	})
+// User ...
+type User struct {
+	ID       int    `db:"id"`
+	Name     string `db:"name"`
+	Lastname string `db:"lastname"`
 }
 
-func addUserHandler(c *gin.Context) {
-	c.JSON(201, gin.H{
-		"name":     "matias",
-		"lastname": "gomez",
-	})
+func createSchema(db *sqlx.DB) {
+	schema := `CREATE TABLE user (
+			id       integer     PRIMARY KEY AUTOINCREMENT,
+			name     varchar(56),
+			lastname varchar(56)
+		);`
+
+	result, err := db.Exec(schema)
+	if err != nil {
+		fmt.Printf("\nError:\n\t%v\n", err)
+		panic(err.Error())
+	}
+	fmt.Printf("\nResultado de creacion de la tabla user:\n \t%v\n", result)
+
+	insertUser := `INSERT INTO user (name, lastname) VALUES (?, ?)`
+
+	db.MustExec(insertUser, "Matias", "Gomez")
+
+	rows, err := db.Queryx(`SELECT
+														id,
+														name,
+														lastname
+													FROM user`)
+	if err != nil {
+		fmt.Printf("\nError en INSERT:\n\t%v\n", err)
+		panic(err.Error())
+	}
+
+	for rows.Next() {
+		var user User
+
+		err = rows.StructScan(&user)
+
+		if err != nil {
+			fmt.Printf("\nError en INSERT:\n\t%v\n", err)
+		}
+		fmt.Printf("\nResultado SELECT a tabla user:\n\t%v\n", user)
+	}
+
 }
